@@ -4,9 +4,10 @@ BeforeDiscovery {
 
     function global:FilterOutCommonParams {
         param ($Params)
-        $commonParameters = [System.Management.Automation.PSCmdlet]::CommonParameters +
-        [System.Management.Automation.PSCmdlet]::OptionalCommonParameters
-        $params | Where-Object { $_.Name -notin $commonParameters } | Sort-Object -Property Name -Unique
+        if (-not $script:CommonParameterKeys) {
+            $script:CommonParameterKeys = ([System.Management.Automation.PSCmdlet]::CommonParameters + [System.Management.Automation.PSCmdlet]::OptionalCommonParameters).Keys
+        }
+        $params | Where-Object { $_.Name -notin $script:CommonParameterKeys } | Sort-Object -Property Name -Unique
     }
 
     $manifest             = Import-PowerShellDataFile -Path $env:BHPSModuleManifest
